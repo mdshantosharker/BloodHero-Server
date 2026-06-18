@@ -42,7 +42,34 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/donationRequests/", async (req, res) => {
+    app.get("/donationRequests/my/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const result = await donationRequestsCollection.findOne({
+        _id: new ObjectId(id),
+      });
+
+      res.send(result);
+    });
+
+    app.patch("/donationRequests/my/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateData = req.body;
+      const result = await donationRequestsCollection.updateOne(
+        {
+          _id: new ObjectId(id),
+        },
+        {
+          $set: {
+            ...updateData,
+          },
+        },
+      );
+
+      res.send(result);
+    });
+
+    app.get("/donationRequests", async (req, res) => {
       const result = await donationRequestsCollection.find({}).toArray();
       res.send(result);
     });
@@ -51,7 +78,6 @@ async function run() {
       const data = req.body;
       const result = await donationRequestsCollection.insertOne({
         ...data,
-        createdAt: new Date(),
       });
       res.send(result);
     });
