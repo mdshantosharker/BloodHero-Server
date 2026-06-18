@@ -28,9 +28,20 @@ async function run() {
     await client.connect();
     const db = client.db("bloodhero");
     const userCollection = db.collection("user");
+    const donationRequestsCollection = db.collection("donationRequests");
+
+    // donationRequestsCollection
+
+    app.post("/donationRequests", async (req, res) => {
+      const data = req.body;
+      const result = await donationRequestsCollection.insertOne({
+        ...data,
+        createdAt: new Date(),
+      });
+      res.send(result);
+    });
 
     // user collection
-
     app.get("/allUsers", async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result);
