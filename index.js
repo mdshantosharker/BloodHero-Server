@@ -44,7 +44,6 @@ async function run() {
 
     app.get("/donationRequests/my/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
       const result = await donationRequestsCollection.findOne({
         _id: new ObjectId(id),
       });
@@ -66,6 +65,14 @@ async function run() {
         },
       );
 
+      res.send(result);
+    });
+
+    app.delete("/donationRequests/my/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await donationRequestsCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
       res.send(result);
     });
 
