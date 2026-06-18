@@ -32,6 +32,21 @@ async function run() {
 
     // donationRequestsCollection
 
+    app.get("/donationRequests/:email", async (req, res) => {
+      const { email } = req.params;
+      const result = await donationRequestsCollection
+        .find({
+          requesterEmail: email,
+        })
+        .toArray();
+      res.send(result);
+    });
+
+    app.get("/donationRequests/", async (req, res) => {
+      const result = await donationRequestsCollection.find({}).toArray();
+      res.send(result);
+    });
+
     app.post("/donationRequests", async (req, res) => {
       const data = req.body;
       const result = await donationRequestsCollection.insertOne({
