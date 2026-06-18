@@ -38,9 +38,7 @@ async function run() {
 
     app.patch("/allUsers/:id", async (req, res) => {
       const id = req.params.id;
-
       const updateData = req.body;
-
       const result = await userCollection.updateOne(
         {
           _id: new ObjectId(id),
@@ -53,6 +51,20 @@ async function run() {
       res.send({
         result,
       });
+    });
+
+    app.patch("/profile/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateData = req.body;
+      const result = await userCollection.updateOne(
+        {
+          _id: new ObjectId(id),
+        },
+        {
+          $set: updateData,
+        },
+      );
+      res.send(result);
     });
 
     await client.db("admin").command({ ping: 1 });
