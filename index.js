@@ -31,6 +31,25 @@ async function run() {
     const donationRequestsCollection = db.collection("donationRequests");
     const paymentCollection = db.collection("payment");
 
+    // search
+    app.get("/donationRequests/search", async (req, res) => {
+      try {
+        const { bloodGroup, district, upazila } = req.query;
+        const query = {};
+
+        if (bloodGroup) query.bloodGroup = bloodGroup;
+        if (district) query.recipientDistrict = district;
+        if (upazila) query.recipientUpazila = upazila;
+
+        const result = await donationRequestsCollection.find(query).toArray();
+
+        res.send(result);
+      } catch (error) {
+        console.error("Search API error:", error);
+        res.status(500).send({ message: "Internal server error" });
+      }
+    });
+
     // paymentCollection
 
     app.post("/payments", async (req, res) => {
