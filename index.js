@@ -29,10 +29,28 @@ async function run() {
     const db = client.db("bloodhero");
     const userCollection = db.collection("user");
     const donationRequestsCollection = db.collection("donationRequests");
+    const paymentCollection = db.collection("payment");
+
+    // paymentCollection
+
+    app.post("/payments", async (req, res) => {
+      const { userId, email, amount, name } = req.body;
+      const result = await paymentCollection.insertOne({
+        userId,
+        email,
+        amount,
+        name,
+      });
+      res.send(result);
+    });
+
+    app.get("/payments", async (req, res) => {
+      const result = await paymentCollection.find().toArray();
+      res.send(result);
+    });
 
     // donationRequestsCollection
 
-    
     app.get("/donationRequests/:email", async (req, res) => {
       const { email } = req.params;
       const result = await donationRequestsCollection
@@ -68,8 +86,6 @@ async function run() {
 
       res.send(result);
     });
-
-   
 
     app.delete("/donationRequests/my/:id", async (req, res) => {
       const id = req.params.id;
