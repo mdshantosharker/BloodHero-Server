@@ -40,6 +40,7 @@ async function run() {
         email,
         amount,
         name,
+        createdAt: new Date(),
       });
       res.send(result);
     });
