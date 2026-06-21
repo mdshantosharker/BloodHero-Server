@@ -35,13 +35,10 @@ async function run() {
     app.get("/donor/search", async (req, res) => {
       try {
         const { bloodGroup, district, upazila } = req.query;
-
         const query = {};
-
         if (bloodGroup) query.bloodGroup = bloodGroup;
         if (district) query.district = district;
         if (upazila) query.upazila = upazila;
-
         const result = await userCollection.find(query).toArray();
         res.send(result);
       } catch (error) {
@@ -73,27 +70,51 @@ async function run() {
       const { page = 1, limit = 5 } = req.query;
       const skip = (Number(page) - 1) * Number(limit);
 
-      const result = await paymentCollection
-        .find()
-        .skip(skip)
-        .limit(Number(limit))
-        .toArray();
+      try {
+        const result = await paymentCollection
+          .find()
+          .sort({ _id: -1 })
+          .skip(skip)
+          .limit(Number(limit))
+          .toArray();
 
-      const totalData = await paymentCollection.countDocuments();
-      const totalPage = Math.ceil(totalData / Number(limit));
-      res.send({ data: result, page: Number(page), totalPage });
+        const totalData = await paymentCollection.countDocuments();
+        const totalPage = Math.ceil(totalData / Number(limit));
+
+        res.send({ data: result, page: Number(page), totalPage, totalData });
+      } catch (error) {
+        res.status(500).send({ message: "Internal Server Error", error });
+      }
+    });
+
+    app.get("/payment", async (req, res) => {
+      const result = await paymentCollection.find().toArray();
+      res.send(result);
     });
 
     // donationRequestsCollection
 
     app.get("/donationRequests/:email", async (req, res) => {
+      const { page = 1, limit = 10 } = req.query;
+      const skip = (Number(page) - 1) * Number(limit);
       const { email } = req.params;
+      const query = { requesterEmail: email };
+
       const result = await donationRequestsCollection
-        .find({
-          requesterEmail: email,
-        })
+        .find(query)
+        .skip(skip)
+        .limit(Number(limit))
         .toArray();
-      res.send(result);
+
+      const totalData = await donationRequestsCollection.countDocuments(query);
+      const totalPage = Math.ceil(totalData / Number(limit));
+
+      res.send({
+        data: result,
+        page: Number(page),
+        totalPage,
+        totalData,
+      });
     });
 
     app.get("/donationRequests/my/:id", async (req, res) => {
@@ -135,6 +156,21 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/donationRequest", async (req, res) => {
+      const { page = 1, limit = 10 } = req.query;
+      const skip = (Number(page) - 1) * Number(limit);
+      const result = await donationRequestsCollection
+        .find()
+        .skip(skip)
+        .limit(Number(limit))
+        .toArray();
+
+      const totalData = await donationRequestsCollection.countDocuments();
+      console.log(totalData);
+      const totalPage = Math.ceil(totalData / Number(limit));
+      res.send({ data: result, page: Number(page), totalPage });
+    });
+
     app.post("/donationRequests", async (req, res) => {
       const data = req.body;
       const result = await donationRequestsCollection.insertOne({
@@ -144,6 +180,7 @@ async function run() {
     });
 
     // user collection
+
     app.get("/allUsers", async (req, res) => {
       const { page = 1, limit = 5 } = req.query;
       const skip = (Number(page) - 1) * Number(limit);
@@ -154,6 +191,7 @@ async function run() {
         .limit(Number(limit))
         .toArray();
       const totalData = await userCollection.countDocuments();
+      // console.log(totalData);
       const totalPage = Math.ceil(totalData / Number(limit));
       res.send({ data: result, page: Number(page), totalPage });
     });
