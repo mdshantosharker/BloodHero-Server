@@ -70,8 +70,18 @@ async function run() {
     });
 
     app.get("/payments", async (req, res) => {
-      const result = await paymentCollection.find().toArray();
-      res.send(result);
+      const { page = 1, limit = 5 } = req.query;
+      const skip = (Number(page) - 1) * Number(limit);
+
+      const result = await paymentCollection
+        .find()
+        .skip(skip)
+        .limit(Number(limit))
+        .toArray();
+
+      const totalData = await paymentCollection.countDocuments();
+      const totalPage = Math.ceil(totalData / Number(limit));
+      res.send({ data: result, page: Number(page), totalPage });
     });
 
     // donationRequestsCollection
@@ -135,7 +145,7 @@ async function run() {
 
     // user collection
     app.get("/allUsers", async (req, res) => {
-      const { page = 1, limit = 3 } = req.query;
+      const { page = 1, limit = 5 } = req.query;
       const skip = (Number(page) - 1) * Number(limit);
 
       const result = await userCollection
