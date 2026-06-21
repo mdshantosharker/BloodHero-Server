@@ -140,7 +140,7 @@ async function run() {
         .toArray();
       const totalData = await userCollection.countDocuments();
       const totalPage = Math.ceil(totalData / Number(limit));
-      res.send({ ...result, page: Number(page), totalPage });
+      res.send({ data:result, page: Number(page), totalPage });
     });
 
     app.patch("/allUsers/:id", async (req, res) => {
