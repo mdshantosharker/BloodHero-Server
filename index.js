@@ -94,6 +94,16 @@ async function run() {
 
     // donationRequestsCollection
 
+    app.get("/requests/:email", async (req, res) => {
+      const { email } = req.params;
+      const result = await donationRequestsCollection
+        .find({
+          requesterEmail: email,
+        })
+        .toArray();
+      res.send(result);
+    });
+
     app.get("/donationRequests/:email", async (req, res) => {
       const { page = 1, limit = 10 } = req.query;
       const skip = (Number(page) - 1) * Number(limit);
