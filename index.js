@@ -32,22 +32,27 @@ async function run() {
     const paymentCollection = db.collection("payment");
 
     // search
-    app.get("/donationRequests/search", async (req, res) => {
+    app.get("/donor/search", async (req, res) => {
       try {
         const { bloodGroup, district, upazila } = req.query;
+
         const query = {};
 
         if (bloodGroup) query.bloodGroup = bloodGroup;
-        if (district) query.recipientDistrict = district;
-        if (upazila) query.recipientUpazila = upazila;
+        if (district) query.district = district;
+        if (upazila) query.upazila = upazila;
 
-        const result = await donationRequestsCollection.find(query).toArray();
-
+        const result = await userCollection.find(query).toArray();
         res.send(result);
       } catch (error) {
         console.error("Search API error:", error);
         res.status(500).send({ message: "Internal server error" });
       }
+    });
+
+    app.get("/donor", async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result);
     });
 
     // paymentCollection
@@ -140,7 +145,7 @@ async function run() {
         .toArray();
       const totalData = await userCollection.countDocuments();
       const totalPage = Math.ceil(totalData / Number(limit));
-      res.send({ data:result, page: Number(page), totalPage });
+      res.send({ data: result, page: Number(page), totalPage });
     });
 
     app.patch("/allUsers/:id", async (req, res) => {
