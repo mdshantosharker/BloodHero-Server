@@ -130,8 +130,17 @@ async function run() {
 
     // user collection
     app.get("/allUsers", async (req, res) => {
-      const result = await userCollection.find().toArray();
-      res.send(result);
+      const { page = 1, limit = 3 } = req.query;
+      const skip = (Number(page) - 1) * Number(limit);
+
+      const result = await userCollection
+        .find()
+        .skip(skip)
+        .limit(Number(limit))
+        .toArray();
+      const totalData = await userCollection.countDocuments();
+      const totalPage = Math.ceil(totalData / Number(limit));
+      res.send({ ...result, page: Number(page), totalPage });
     });
 
     app.patch("/allUsers/:id", async (req, res) => {
